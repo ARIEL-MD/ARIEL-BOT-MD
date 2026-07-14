@@ -18,7 +18,7 @@ const commands = [
   {
     name: "xnxx", // TODO 3 : change le nom de la commande si tu veux (.dl, .save, etc.)
     desc: "Télécharge une vidéo depuis un lien : .xnxx <lien>",
-    category: "Téléchargement",
+    category: "Téléchargements",
     run: async (sock, msg, { from, args }) => {
       const link = args.join(" ").trim();
 
