@@ -2800,11 +2800,6 @@ commands.push(...wallpaperCommands);
 const bibleCommands = require("./bible");
 commands.push(...bibleCommands);
 
-// ----- Commande ajoutée : xnxx (.xnxx) — voir
-// commands/xnxx.js -----
-const xnxxCommands = require("./xnxx");
-commands.push(...xnxxCommands);
-
 module.exports = commands;
 module.exports.getMenuImageBuffer = getMenuImageBuffer;
 module.exports.initScheduledStatuses = profileStatusCommands.initScheduledStatuses;
