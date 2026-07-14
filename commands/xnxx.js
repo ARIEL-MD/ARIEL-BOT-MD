@@ -1,146 +1,93 @@
+// ============ TÉLÉCHARGEMENT VIDÉO VIA API EXTERNE ============
+// .video <lien>   (change le nom ci-dessous si tu veux un autre alias)
+//
+// ⚠️ À PERSONNALISER : cherche les commentaires "TODO" ci-dessous et
+// remplace par les infos de TON API (URL, clé, nom des champs JSON).
+// ================================================================
 const axios = require("axios");
-const { getLang } = require("../lib/lang");
 
-const PAGE_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Cookie": "age_verified=1; lang=en"
-};
+// TODO 1 : mets ici l'URL de base de ton API.
+// Exemple : "https://mon-api.com/download?url="
+const API_BASE = "http://api-sky.ultraplus.click/xnxx";
 
-// Scrape video info directly from the XNXX page (no third-party download API needed)
-async function scrapeXnxxPage(pageUrl) {
-    const res = await axios.get(pageUrl, { timeout: 20000, headers: PAGE_HEADERS });
-    const html = res.data;
-    const contentUrlMatch = html.match(/"contentUrl":\s*"([^"]+\.mp4[^"]*)"/);
-    const titleMatch = html.match(/html5player\.setVideoTitle\('([^']+)'\)/);
-    const thumbMatch = html.match(/html5player\.setThumbUrl\('([^']+)'\)/);
-    return {
-        videoUrl: contentUrlMatch ? contentUrlMatch[1].replace(/\\u0026/g, "&") : null,
-        title: titleMatch ? titleMatch[1] : null,
-        thumbnail: thumbMatch ? thumbMatch[1] : null
-    };
-}
+// TODO 2 (optionnel) : si ton API demande une clé, mets-la ici,
+// sinon laisse vide "" et supprime son usage plus bas.
+const API_KEY = "sk_c801a619-7d24-4abc-9876-39b58436d88d"; // ex: "sk_xxx..."
 
-function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
+const commands = [
+  {
+    name: "xnxx", // TODO 3 : change le nom de la commande si tu veux (.dl, .save, etc.)
+    desc: "Télécharge une vidéo depuis un lien : .xnxx <lien>",
+    category: "Téléchargement",
+    run: async (sock, msg, { from, args }) => {
+      const link = args.join(" ").trim();
 
-async function xnxxCommand(sock, chatId, query, message) {
-    const WHATSAPP_LIMIT = 62 * 1024 * 1024;
-    const MAX_SEND = 3;
-
-    if (!query) {
-        await sock.sendMessage(chatId, {
-            text: "⚠️ Please provide a search keyword.\n\nExample:\n```xnxx hot video```"
+      if (!link) {
+        return sock.sendMessage(from, {
+          text: "Utilisation : .xnxx <lien>\nExemple : .xnxx https://exemple.com/post/123",
         });
-        return;
-    }
+      }
 
-    if (query.includes("xnxx.com")) {
-        await sock.sendMessage(chatId, { text: getLang(sock).xnxx_no_url });
-        return;
-    }
+      // Petite vérification que c'est bien un lien
+      if (!/^https?:\/\//i.test(link)) {
+        return sock.sendMessage(from, {
+          text: "❌ Merci d'envoyer un lien valide (commençant par http:// ou https://).",
+        });
+      }
 
-    try {
-        await sock.sendMessage(chatId, { react: { text: "⏳", key: message.key } });
+      try {
+        await sock.sendMessage(from, { text: "⏳ Téléchargement en cours..." });
 
-        const searchRes = await axios.get(
-            "http://51.83.103.24:20035/search/xnxx?query=" + encodeURIComponent(query),
-            { timeout: 30000 }
-        );
-        let videos = (searchRes.data && searchRes.data.result && searchRes.data.result.videos) || [];
-        if (!videos.length) {
-            await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-            await sock.sendMessage(chatId, { text: getLang(sock).xnxx_not_found.replace("{query}", query) });
-            return;
+        // ----- Étape 1 : appel à l'API -----
+        // TODO 4 : adapte l'URL complète selon la doc de ton API.
+        // Certaines API veulent le lien encodé, d'autres en paramètre POST, etc.
+        const apiUrl = `${API_BASE}${encodeURIComponent(link)}`;
+
+        const { data } = await axios.get(apiUrl, {
+          timeout: 20000,
+          // Décommente si ton API demande une clé dans les headers :
+          // headers: { Authorization: `Bearer ${API_KEY}` },
+          // Ou si elle veut la clé en paramètre :
+          // params: { apikey: API_KEY },
+        });
+
+        // ----- Étape 2 : extraire l'URL de la vidéo dans le JSON -----
+        // TODO 5 : IMPORTANT — adapte ce chemin selon la vraie structure
+        // du JSON renvoyé par ton API. Regarde la réponse réelle (fais un
+        // test avec curl ou Postman) et ajuste la ligne ci-dessous.
+        //
+        // Exemples selon le format de réponse :
+        //   { "url": "https://..." }              -> data.url
+        //   { "result": { "video": "https://..." } } -> data.result.video
+        //   { "data": [{ "url": "https://..." }] }   -> data.data[0].url
+        const videoUrl = data.result.media.video; // <-- CHANGE CETTE LIGNE selon ton JSON
+
+        if (!videoUrl) {
+          console.error("Réponse API inattendue :", JSON.stringify(data).slice(0, 500));
+          return sock.sendMessage(from, {
+            text: "❌ L'API n'a pas renvoyé de lien vidéo (vérifie le format du JSON dans le code).",
+          });
         }
 
-        videos = shuffleArray(videos);
+        // ----- Étape 3 : télécharger le fichier vidéo lui-même -----
+        const { data: videoBuffer } = await axios.get(videoUrl, {
+          responseType: "arraybuffer",
+          timeout: 60000, // les vidéos peuvent être lourdes, on laisse plus de temps
+        });
 
-        let sentCount = 0;
+        // ----- Étape 4 : envoyer la vidéo sur WhatsApp -----
+        await sock.sendMessage(from, {
+          video: Buffer.from(videoBuffer),
+          caption: "✅ Voici ta vidéo !",
+        });
+      } catch (err) {
+        console.error("Erreur .video :", err.message);
+        await sock.sendMessage(from, {
+          text: "❌ Impossible de télécharger cette vidéo (lien invalide, API indisponible, ou fichier trop lourd).",
+        });
+      }
+    },
+  },
+];
 
-        for (let i = 0; i < videos.length && sentCount < MAX_SEND; i++) {
-            const video = videos[i];
-
-            try {
-                const info = await scrapeXnxxPage(video.page_url);
-                if (!info.videoUrl) {
-                    console.log("[xnxx] No video URL scraped from:", video.page_url);
-                    continue;
-                }
-
-                // Check size before downloading
-                let fileSize = null;
-                try {
-                    const head = await axios.head(info.videoUrl, {
-                        timeout: 10000,
-                        headers: { "User-Agent": "Mozilla/5.0" }
-                    });
-                    fileSize = parseInt(head.headers["content-length"] || 0);
-                } catch {}
-
-                if (fileSize && fileSize > WHATSAPP_LIMIT) {
-                    console.log("[xnxx] Skipping too large:", Math.round(fileSize / 1024 / 1024) + "MB");
-                    continue;
-                }
-
-                // Download video buffer (XNXX serves H.264 already — no re-encoding needed)
-                const dlRes = await axios.get(info.videoUrl, {
-                    responseType: "arraybuffer",
-                    timeout: 120000,
-                    headers: { "User-Agent": "Mozilla/5.0" }
-                });
-                const videoBuf = Buffer.from(dlRes.data);
-
-                if (videoBuf.length > WHATSAPP_LIMIT) {
-                    console.log("[xnxx] Post-download too large:", Math.round(videoBuf.length / 1024 / 1024) + "MB");
-                    continue;
-                }
-
-                const title = info.title || video.title || "XNXX Video";
-                const caption = "🎬 *" + title + "*\n🔞 *18+ Only*\n\n> *_Downloaded by Queen Riam_*";
-
-                if (info.thumbnail) {
-                    await sock.sendMessage(chatId, {
-                        image: { url: info.thumbnail },
-                        caption: "🎬 *" + title + "*\n🔞 *18+ Only*"
-                    });
-                }
-
-                await sock.sendMessage(chatId, {
-                    video: videoBuf,
-                    mimetype: "video/mp4",
-                    fileName: title.replace(/[^a-zA-Z0-9\-_ ]/g, "").trim() + ".mp4",
-                    caption
-                });
-
-                sentCount++;
-
-            } catch (err) {
-                console.error("[xnxx] Failed for", video.page_url, ":", err.message);
-            }
-        }
-
-        if (sentCount === 0) {
-            await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-            await sock.sendMessage(chatId, { text: "❌ Couldn't find any videos small enough to send. Try a different keyword." });
-        } else {
-            await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
-            await sock.sendMessage(chatId, {
-                text: getLang(sock).xnxx_success.replace("{count}", sentCount).replace("{query}", query)
-            });
-        }
-
-    } catch (error) {
-        console.error("[xnxx] Main error:", error.message);
-        await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-        await sock.sendMessage(chatId, { text: "❌ An error occurred while processing your request." });
-    }
-}
-
-module.exports = { xnxxCommand };
+module.exports = commands;
