@@ -68,8 +68,11 @@ Le projet est pensé pour être :
 
 ## 🚀 Installation
 
+1. **Fork ce dépôt** sur ton propre compte GitHub (bouton **Fork** en haut à droite de la page du projet) — c'est nécessaire avant de pouvoir cloner/télécharger et déployer ta propre copie du bot.
+2. Clone (ou télécharge le ZIP de) **ton fork**, puis installe les dépendances :
+
 ```bash
-git clone https://github.com/ARIEL-MD/ARIEL-BOT-MD.git
+git clone https://github.com/TON-COMPTE/ARIEL-BOT-MD.git
 cd ARIEL-BOT-MD
 npm install
 ```
