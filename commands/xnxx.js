@@ -1,5 +1,5 @@
 // ============ TÉLÉCHARGEMENT VIDÉO VIA API EXTERNE ============
-// .video <lien>   (change le nom ci-dessous si tu veux un autre alias)
+// .xnxx <lien>   (change le nom ci-dessous si tu veux un autre alias)
 //
 // ⚠️ À PERSONNALISER : cherche les commentaires "TODO" ci-dessous et
 // remplace par les infos de TON API (URL, clé, nom des champs JSON).
