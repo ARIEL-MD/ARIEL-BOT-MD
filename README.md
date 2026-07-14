@@ -1,218 +1,308 @@
-# ARIEL-MD
+<div align="center">
 
-Bot WhatsApp basé sur [Baileys](https://github.com/WhiskeySockets/Baileys), 100% lisible,
-sans téléchargement ni exécution de code externe, sans SESSION_ID à récupérer ailleurs.
+# 🤖 ARIEL-MD
 
-## Installation
+<img src="https://i.ibb.co/vvTf52cf/ARIEL-MD.jpg" alt="ARIEL-MD" width="500"/>
+
+**Bot WhatsApp multifonction basé sur [Baileys](https://github.com/WhiskeySockets/Baileys)**
+
+Connexion par code d'appairage · Code 100% lisible · Aucun SESSION_ID externe à récupérer
+
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.x-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![Baileys](https://img.shields.io/badge/Baileys-%5E6.7.23-25D366?logo=whatsapp&logoColor=white)](https://github.com/WhiskeySockets/Baileys)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](#licence)
+[![Made with](https://img.shields.io/badge/made%20with-%E2%9D%A4-red)]()
+
+[Installation](#-installation) · [Configuration](#%EF%B8%8F-configuration) · [Commandes](#-commandes-disponibles) · [Déploiement](#%EF%B8%8F-déploiement) · [FAQ](#-questions-fréquentes)
+
+</div>
+
+---
+
+## 📖 Sommaire
+
+- [Présentation](#-présentation)
+- [Fonctionnalités](#-fonctionnalités)
+- [Prérequis](#-prérequis)
+- [Installation](#-installation)
+- [Configuration](#%EF%B8%8F-configuration)
+- [Démarrage](#%EF%B8%8F-démarrage)
+- [Commandes disponibles](#-commandes-disponibles)
+- [Déploiement](#%EF%B8%8F-déploiement)
+- [Dépannage](#%EF%B8%8F-dépannage)
+- [Questions fréquentes](#-questions-fréquentes)
+- [Avertissement](#%EF%B8%8F-avertissement)
+- [Licence](#-licence)
+
+---
+
+## 📌 Présentation
+
+**ARIEL-MD** est un bot WhatsApp personnel construit sur [Baileys](https://github.com/WhiskeySockets/Baileys), la librairie open-source de référence pour se connecter à WhatsApp Web sans navigateur. Il se connecte à ton propre numéro via un **code d'appairage à 8 caractères**, directement dans la console — pas de QR code à scanner en boucle, pas de service tiers, pas de clé de session à copier depuis un site externe.
+
+Le projet est pensé pour être :
+- **Transparent** : tout le code est lisible et commenté en français.
+- **Autonome** : `yt-dlp` et `ffmpeg` sont téléchargés/gérés automatiquement, sans Python ni droits admin.
+- **Portable** : fonctionne aussi bien en local, sur un VPS, que sur des panels d'hébergement type Pterodactyl (OptikLink, Katabump, bot-hosting.net...).
+
+## ✨ Fonctionnalités
+
+| | |
+|---|---|
+| 📥 **Téléchargements** | YouTube, TikTok, Facebook, Instagram, Spotify, packs de stickers Telegram |
+| 🎨 **Images & Stickers** | Création de stickers, amélioration de photos, texte stylisé, fonds d'écran |
+| 🤖 **IA** | Chat avec Llama 3.3 70B (Groq), génération d'images (Pollinations) |
+| 🌍 **Traduction** | Traduction multi-API avec repli automatique en cascade |
+| 👥 **Modération de groupe** | Kick/promote/demote, anti-lien, anti-fake, tagall, bienvenue/au revoir personnalisés |
+| 👑 **Outils propriétaire** | Anti-suppression, anti-vue-unique, mode absent, réponse auto, visionneur de statuts, mise à jour à distance |
+| 🧰 **Utilitaires** | QR code, raccourcisseur de lien, convertisseur de devises, calculatrice, base64 |
+| 🎉 **Fun** | Citations, boule magique, memes |
+
+➡️ Voir la liste complète et détaillée dans [Commandes disponibles](#-commandes-disponibles).
+
+## 🧾 Prérequis
+
+- [Node.js](https://nodejs.org) **18 ou supérieur**
+- Un accès internet sortant (au minimum au moment du `npm install`)
+- Un numéro WhatsApp dédié au bot (recommandé de ne pas utiliser ton numéro principal)
+
+## 🚀 Installation
 
 ```bash
+git clone https://github.com/ARIEL-MD/ARIEL-BOT-MD.git
+cd ARIEL-BOT-MD
 npm install
 ```
 
-Les commandes `.play`, `.yt`, `.tiktok` et `.fb` utilisent :
-- un binaire **ffmpeg** portable (paquet `ffmpeg-static`)
-- un binaire **yt-dlp** autonome, téléchargé automatiquement depuis GitHub
-  après `npm install` (voir `scripts/download-ytdlp.js`)
+Le `npm install` télécharge automatiquement, en plus des dépendances npm classiques :
+- un binaire **ffmpeg** portable (`ffmpeg-static`), utilisé pour les stickers et les conversions audio/vidéo ;
+- un binaire **yt-dlp** autonome (`scripts/download-ytdlp.js`), utilisé par `.song`/`.video` en repli.
 
-Aucun des deux ne nécessite Python ni un accès root/sudo : ça fonctionne tel
-quel sur les panels d'hébergement type Pterodactyl (Optilink, bot-hosting.net,
-etc.) où tu n'as pas de droits administrateur. Seul un accès internet sortant
-est nécessaire au moment du `npm install`.
+Aucun des deux ne nécessite Python ni un accès root : ça fonctionne tel quel sur la plupart des panels d'hébergement sans droits administrateur.
 
-## Configuration
+## ⚙️ Configuration
 
-Copie `config.example.js` en `config.js` (`cp config.example.js config.js`), puis
-ouvre `config.js` pour renseigner tes vraies valeurs (numéro du propriétaire, clé
-API OpenAI pour `.gpt`, etc.). `config.js` contient des données sensibles et est
-donc listé dans `.gitignore` : il ne sera jamais publié si tu utilises Git.
+Copie le fichier d'exemple puis remplis tes propres valeurs :
 
-## Démarrage
+```bash
+cp config.example.js config.js
+```
+
+Ouvre ensuite `config.js` : chaque option y est décrite par un commentaire (numéro du propriétaire, clés API optionnelles pour certaines commandes, mode public/privé, etc.).
+
+> ⚠️ `config.js` contient des données sensibles et est listé dans `.gitignore` : il ne sera **jamais** publié via Git. Ne le partage jamais publiquement, et ne le colle pas dans un message, une issue ou un README.
+
+## ▶️ Démarrage
 
 ```bash
 npm start
 ```
 
 Au premier lancement (ou si la session est perdue) :
-1. Le bot te demande ton numéro WhatsApp directement dans la console.
-2. Il affiche un **code d'appairage**.
-3. Sur ton téléphone : WhatsApp > Paramètres > Appareils liés > Lier un appareil >
-   "Lier avec un numéro de téléphone" > entre le code affiché.
-4. Une fois connecté, un dossier `session/` est créé : NE LE PARTAGE JAMAIS,
-   il contient les clés de connexion à ton compte WhatsApp. Les prochains
-   démarrages n'auront plus besoin du code.
 
-## Commandes disponibles
+1. Le bot demande ton numéro WhatsApp directement dans la console (sauf si `PHONE_NUMBER` est déjà renseigné).
+2. Il affiche un **code d'appairage** à 8 caractères.
+3. Sur ton téléphone : **WhatsApp → Paramètres → Appareils liés → Lier un appareil → Lier avec un numéro de téléphone** → entre le code affiché.
+4. Une fois connecté, un dossier `session/` est créé automatiquement.
 
-### Général
-| Commande    | Description                                  |
-|-------------|-----------------------------------------------|
-| `.menu`     | Affiche la liste des commandes (par catégorie) |
-| `.ping`     | Teste si le bot répond                        |
-| `.alive`    | Vérifie que le bot est en ligne               |
-| `.runtime`  | Depuis combien de temps le bot tourne         |
-| `.owner`    | Affiche le contact du propriétaire            |
-| `.jid`      | Affiche le JID du chat et le tien             |
-| `.afk [message]` | Active le mode absent (réponse auto en DM, se désactive tout seul dès que tu écris) - propriétaire |
-| `.unafk`    | Désactive le mode absent - propriétaire       |
-| `.autoreply on <message>` / `.autoreply off` | Réponse automatique en DM, persistante (survit aux redémarrages, ne se coupe pas toute seule) - propriétaire |
+> 🔒 Le dossier `session/` contient les clés de connexion à ton compte WhatsApp — ne le partage **jamais**, avec personne. Les démarrages suivants n'auront plus besoin du code d'appairage.
 
-### Paramètres (propriétaire uniquement)
-| Commande                    | Description                                       |
-|------------------------------|---------------------------------------------------|
-| `.settings`                 | Affiche l'état actuel des réglages activables      |
-| `.online on|off`            | Toujours en ligne                                  |
-| `.autostatus`                | Affiche le menu complet du visionneur de statuts (voir ci-dessous) |
-| `.anti_delete on|off`       | Renvoyer les messages supprimés au propriétaire    |
-| `.ok on|off`                | Anti-vue-unique (récupère les photos/vidéos "vue unique") |
-| `.toggle <nom> on|off`      | Réglage générique (couvre aussi `anti_call`, `welcome`) |
+## 📋 Commandes disponibles
 
-Ces changements sont en mémoire : ils reviennent à la valeur de `config.js`
-si le bot redémarre. Pour un changement permanent, modifie directement
-`config.js`.
+> Le préfixe par défaut est `.` (configurable dans `config.js` via `PREFIX`/`PREFIXES`). Tape `.menu` à tout moment pour voir la liste à jour directement depuis WhatsApp.
 
-### Visionneur de statuts auto (`.autostatus`)
+### 📋 Général
+| Commande | Description |
+|---|---|
+| `.menu` | Affiche la liste des commandes par catégorie |
+| `.ping` | Teste la réactivité du bot (vitesse, uptime, RAM) |
+| `.alive` | Vérifie que le bot est en ligne |
+| `.runtime` | Depuis combien de temps le bot tourne |
+| `.owner` | Affiche le contact du propriétaire |
+| `.jid` | Affiche le JID du chat et le tien |
+| `.afk [message]` | Active le mode absent (réponse auto en DM) — propriétaire |
+| `.unafk` | Désactive le mode absent — propriétaire |
+| `.autoreply on <message>` / `off` | Réponse automatique persistante en DM — propriétaire |
 
-Contrairement aux autres réglages ci-dessus, `.autostatus` a sa propre
-persistance (fichier `data/autostatus.json`, créé automatiquement) : il
-survit donc à un redémarrage du bot sans rien à changer dans `config.js`.
+### 👑 Owner (réservées au propriétaire)
+| Commande | Description |
+|---|---|
+| `.settings` | Affiche l'état de tous les réglages activables |
+| `.toggle <nom> on\|off` | Réglage générique (voir `.settings` pour la liste) |
+| `.online on\|off` | Toujours apparaître en ligne |
+| `.anti_delete on\|off` | Renvoie les messages supprimés au propriétaire |
+| `.anticall on\|off` | Rejette automatiquement les appels entrants |
+| `.antivv on\|off` | Anti-vue-unique automatique (capture les médias vue unique) |
+| `.autoread on\|off` | Lecture automatique des messages |
+| `.autotyping on\|off` | Simulation de frappe avant réponse |
+| `.reactcmd on\|off\|<emoji>` | Réaction automatique sur les commandes reçues |
+| `.ok` | Répondre à un média vue unique pour le révéler, ou `.ok on\|off` pour l'automatiser |
+| `.autostatus` | Menu du visionneur/like automatique de statuts (voir ci-dessous) |
+| `.pp` | Change la photo de profil du bot (répondre à une image) |
+| `.setstatus` | Publie le média/texte cité en story |
+| `.scstatus` | Programme l'envoi d'une story |
+| `.update` | Vérifie et applique les mises à jour du bot |
+| `.restart` | Redémarre le bot |
 
-| Commande                              | Description                                  |
-|-----------------------------------------|-----------------------------------------------|
-| `.autostatus`                           | Affiche l'état actuel et le menu d'aide       |
-| `.autostatus on` / `off`                | Active / désactive le visionnage auto des statuts |
-| `.autostatuslike on` / `off`            | Active / désactive le like 💚 des statuts vus |
-| `.autostatus self on` / `off`           | Voir (ou ignorer) ses propres statuts          |
-| `.autostatus include add <numéros>`     | Ne voir QUE ces numéros                        |
-| `.autostatus include remove <numéros>`  | Retire des numéros de la liste d'inclusion     |
-| `.autostatus exclude add <numéros>`     | Voir tous les statuts SAUF ces numéros         |
-| `.autostatus exclude remove <numéros>`  | Retire des numéros de la liste d'exclusion     |
-| `.autostatus includelist` / `excludelist` | Affiche la liste active                      |
-| `.autostatus includeclear` / `excludeclear` | Vide la liste                              |
+<details>
+<summary><strong>📡 Visionneur de statuts automatique (<code>.autostatus</code>)</strong></summary>
+
+Persistance propre (`data/autostatus.json`) : survit à un redémarrage sans configuration supplémentaire.
+
+| Commande | Description |
+|---|---|
+| `.autostatus on` / `off` | Active / désactive le visionnage automatique des statuts |
+| `.autostatuslike on` / `off` | Active / désactive le like 💚 des statuts vus |
+| `.autostatus self on` / `off` | Voir (ou ignorer) ses propres statuts |
+| `.autostatus include add/remove <numéros>` | Gère la liste des numéros à voir exclusivement |
+| `.autostatus exclude add/remove <numéros>` | Gère la liste des numéros à ignorer |
+| `.autostatus includelist` / `excludelist` | Affiche la liste active |
+| `.autostatus includeclear` / `excludeclear` | Vide la liste |
+
+</details>
 
 ### 🤖 IA
-| Commande    | Description                                  |
-|-------------|-----------------------------------------------|
-| `.gpt <question>` | Pose une question à l'IA (Llama 3.3 70B via Groq, clé API gratuite requise dans `config.js`) |
+| Commande | Description |
+|---|---|
+| `.gpt <question>` | Pose une question à l'IA (Llama 3.3 70B via Groq) |
+| `.dall <description>` | Génère une image à partir d'une description (Pollinations AI) |
 
-### Utilitaires
-| Commande    | Description                                  |
-|-------------|-----------------------------------------------|
-| `.sticker`  | Transforme une image/vidéo en sticker (répondre à un média) |
-| `.toimg`    | Reconvertit un sticker en image (répondre à un sticker) |
-| `.remini`   | Améliore la netteté/qualité d'une image, zoom x2 (répondre à une image) |
-| `.calc`     | Calculatrice : `.calc 12*(3+4)`               |
-| `.clear`    | Efface tous les messages connus de la discussion, pour tout le monde quand c'est possible (propriétaire uniquement) |
-| `.clearforme` | Efface toute la discussion connue, UNIQUEMENT de ton côté — l'autre garde tout et ne voit rien, aucune notification (propriétaire uniquement) |
+### 📥 Téléchargements
+| Commande | Description |
+|---|---|
+| `.video <titre ou lien>` | Télécharge une vidéo YouTube (recherche ou lien direct) |
+| `.song <titre ou lien>` | Télécharge une musique YouTube, conversion MP3 automatique |
+| `.tiktok <lien>` | Télécharge une vidéo TikTok |
+| `.insta <lien>` | Télécharge un post/reel Instagram public |
+| `.fb <lien>` | Télécharge une vidéo Facebook |
 | `.spotify <titre/artiste>` | Recherche et télécharge une musique depuis Spotify |
-| `.tg <lien du pack>` | Télécharge et envoie **tout** un pack de stickers Telegram (ex: `.tg https://t.me/addstickers/NomDuPack`) |
-| `.lyrics <artiste> - <titre>` | Affiche les paroles d'une chanson (artiste optionnel, deviné via YouTube sinon) |
-| `.qrcode <texte/lien>` | Génère un QR code à partir d'un texte ou d'un lien |
-| `.shorturl <lien>` | Raccourcit un lien long |
-| `.currency <montant> <de> <vers>` | Convertit un montant entre deux devises (ex: `.currency 100 USD EUR`) |
-| `.base64 encode\|decode <texte>` | Encode ou décode du texte en base64 |
-| `.quote` | Envoie une citation inspirante aléatoire |
-| `.8ball <question>` | Boule magique : répond oui/non/incertain à une question |
-| `.meme` | Envoie un meme aléatoire |
+| `.tg <lien du pack>` | Télécharge un pack complet de stickers Telegram |
 
-### Groupe & Modération (réservées aux admins du groupe)
-| Commande        | Description                                          |
-|------------------|-------------------------------------------------------|
-| `.tagall [texte]`| Mentionne tout le monde avec un message               |
-| `.hidetag [texte]`| Notifie tout le monde sans afficher la liste          |
-| `.kick`          | Exclut un membre (mention, réponse ou numéro)          |
-| `.add <numéro>`  | Ajoute un numéro au groupe                             |
-| `.promote`       | Promeut un membre admin (mention ou réponse)           |
-| `.demote`        | Rétrograde un admin (mention ou réponse)               |
-| `.group open/close` | Ouvre ou ferme le groupe (écriture réservée aux admins) |
-| `.antilink on/off`  | Supprime automatiquement les liens envoyés par les non-admins |
-| `.listadmins`    | Liste tous les admins du groupe                        |
+### 🎨 Images & Stickers
+| Commande | Description |
+|---|---|
+| `.sticker` | Transforme une image/vidéo en sticker (répondre à un média) |
+| `.toimg` | Reconvertit un sticker en image |
+| `.remini` | Améliore la netteté/qualité d'une image (zoom x2) |
+| `.text <style> <texte>` | Génère un texte stylisé (metallic, ice, neon, fire, matrix...) |
+| `.hacker <texte>` | Génère un avatar "hacker" stylisé |
+| `.wall <recherche>` | Cherche des fonds d'écran (alias `.wallpaper`) |
 
-`.kick`, `.promote` et `.demote` acceptent soit une mention (`@membre`), soit
-une réponse au message de la personne, soit son numéro en argument. Pour ces
-commandes, le bot doit lui-même être admin du groupe.
+### 🌍 Traduction
+| Commande | Description |
+|---|---|
+| `.translate <langue> <texte>` | Traduit un texte (ou en réponse à un message) |
+| `.trt <langue> <texte>` | Alias de `.translate` |
 
-## Ajouter une image au menu (`.menu` / `.alive`)
+### ℹ️ Infos & Recherche
+| Commande | Description |
+|---|---|
+| `.meteo <ville>` | Météo actuelle d'une ville |
+| `.lyrics <artiste> - <titre>` | Paroles d'une chanson |
+| `.currency <montant> <de> <vers>` | Convertisseur de devises |
 
-Ouvre `config.js` et renseigne `MENU_IMAGE_URL` avec un lien direct vers une
-image (se termine par `.jpg`, `.png`...) :
+### 🧰 Utilitaires
+| Commande | Description |
+|---|---|
+| `.calc <expression>` | Calculatrice (`.calc 12*(3+4)`) |
+| `.qrcode <texte/lien>` | Génère un QR code |
+| `.shorturl <lien>` | Raccourcit un lien |
+| `.base64 encode\|decode <texte>` | Encode/décode en base64 |
+| `.poll Question \| Option1 \| Option2...` | Crée un sondage WhatsApp |
+| `.clear` | Efface les messages connus pour tout le monde — propriétaire |
+| `.clearforme` | Efface la discussion connue, uniquement de ton côté — propriétaire |
 
-```js
-MENU_IMAGE_URL: "https://files.catbox.moe/exemple.jpg",
-```
+### 🎉 Fun
+| Commande | Description |
+|---|---|
+| `.quote` | Citation inspirante aléatoire |
+| `.8ball <question>` | Boule magique |
+| `.meme` | Meme aléatoire |
 
-Comment obtenir un lien direct :
-1. Héberge ton image sur un site gratuit comme https://catbox.moe (upload
-   simple, pas de compte requis) ou https://imgbb.com.
-2. Copie le **lien direct** vers le fichier (pas la page de partage).
-3. Colle-le dans `MENU_IMAGE_URL`.
+### 👥 Groupe & Modération (admins du groupe)
+| Commande | Description |
+|---|---|
+| `.tagall [texte]` | Mentionne tous les membres |
+| `.hidetag [texte]` | Notifie tout le monde discrètement |
+| `.kick` | Exclut un membre (mention, réponse ou numéro) |
+| `.add <numéro>` | Ajoute un numéro au groupe |
+| `.promote` / `.demote` | Promeut/rétrograde un membre admin |
+| `.group open\|close` | Ouvre ou ferme le groupe |
+| `.antilink on\|off` | Supprime automatiquement les liens des non-admins |
+| `.welcome on\|off` | Active/désactive les messages de bienvenue et d'au revoir |
+| `.setwelcome <message>` / `.setbye <message>` | Personnalise ces messages (`{user}`, `{group}`) |
+| `.antifake on\|off` | Exclut les membres dont l'indicatif n'est pas autorisé |
+| `.listadmins` | Liste les admins du groupe |
 
-Une fois configuré, `.menu` envoie automatiquement l'image avec toutes les
-infos et la liste des commandes en légende. Si tu laisses `MENU_IMAGE_URL`
-vide (`""`), le menu reste en texte seul.
+> `.kick`, `.promote`, `.demote` acceptent une mention, une réponse au message, ou un numéro en argument. Le bot doit lui-même être admin du groupe pour ces actions.
 
-## Ajouter une commande
+### 📂 Autres
+| Commande | Description |
+|---|---|
+| `.bible <référence>` | Affiche un verset biblique, version Louis Segond (alias `.verset`, `.lsg`) |
 
-Ouvre `commands/index.js` et ajoute un objet dans le tableau `commands` :
+## ☁️ Déploiement
 
-```js
-{
-  name: "salut",
-  desc: "Dit bonjour",
-  category: "Général",
-  run: async (sock, msg, { from }) => {
-    await sock.sendMessage(from, { text: "Salut !" });
-  },
-},
-```
-
-## Déploiement sur OptikLink
-
-1. Crée un serveur type "Bot Hosting" / egg Node.js sur https://optiklink.net
-2. Upload ce dossier (via le ZIP ou Git)
+### OptikLink
+1. Crée un serveur type **"Bot Hosting" / egg Node.js** sur [optiklink.net](https://optiklink.net)
+2. Upload ce dossier (ZIP ou Git)
 3. Fichier de démarrage : `index.js`
-4. Démarre le serveur, puis suis les instructions affichées dans la console
-   pour entrer ton numéro et récupérer ton code d'appairage.
+4. Démarre le serveur, puis suis les instructions affichées en console pour entrer ton numéro et récupérer ton code d'appairage.
 
-## Déployer sur n'importe quel panel / serveur
+### Autres panels / VPS / local
+Le bot est conçu pour tourner de façon identique sur OptikLink, Katabump, un panel Pterodactyl générique, un VPS ou en local, **sans rien changer dans le code** :
 
-Le bot est conçu pour marcher pareil sur OptikLink, Katabump, un panel
-Pterodactyl générique, un VPS ou en local, sans rien changer dans le code :
+| Besoin | Solution automatique |
+|---|---|
+| Numéro de téléphone | `node index.js <numéro>`, variable d'env. `PHONE_NUMBER`, ou `config.js` |
+| Ping HTTP (Render, Railway, Replit...) | Petit serveur intégré qui répond `OK` sur le port fourni par `PORT` (3000 par défaut) |
+| Console non interactive | Le bot saute la saisie manuelle du numéro au lieu de planter |
+| `yt-dlp` / `ffmpeg` | Téléchargés/vérifiés automatiquement au démarrage, même sans `postinstall` |
 
-- **Numéro de téléphone** : passe-le directement dans la commande de
-  démarrage du panel, ex. `node index.js 2250788523990` (marche même sur les
-  panels sans champ "variables" personnalisées). Sinon, une variable
-  d'environnement `PHONE_NUMBER`, ou `PHONE_NUMBER` dans `config.js`.
-- **Port HTTP** : certains panels (Render, Railway, Replit, panels
-  Pterodactyl en mode "web service"...) surveillent un port HTTP pour savoir
-  si l'app tourne, et la redémarrent sinon. Le bot ouvre automatiquement un
-  petit serveur qui répond "OK" sur le port fourni par la variable
-  d'environnement `PORT` (ou 3000 par défaut) — rien à configurer, et ça ne
-  gêne en rien les panels qui n'en ont pas besoin.
-- **Console non interactive** : sur les panels où la console ne permet pas de
-  taper au clavier, le bot saute simplement l'étape de saisie manuelle du
-  numéro (voir point ci-dessus) au lieu de planter.
-- **yt-dlp / ffmpeg** : téléchargés/vérifiés automatiquement au démarrage
-  même si le panel bloque le script `postinstall` de npm.
+## 🛠️ Dépannage
 
-### "Le bot redémarre tout seul très souvent"
+<details>
+<summary><strong>Le bot redémarre tout seul très souvent</strong></summary>
 
-Si ça arrive régulièrement (ex: environ toutes les heures) alors que WhatsApp
-reste bien connecté de son côté, c'est presque toujours un problème de
-consommation mémoire/CPU qui grimpe avec le temps, jusqu'à ce que le panel
-tue le process et le relance de force. Deux fuites connues ont été corrigées :
-un minuteur "toujours en ligne" et un minuteur de statut programmé qui se
-dupliquaient à chaque reconnexion WhatsApp au lieu d'être remplacés. Si le
-souci persiste malgré tout après cette version, vérifie en priorité le quota
-de RAM alloué par ton panel (beaucoup de plans gratuits sont très limités,
-autour de 256-512 Mo, ce qui peut suffire à provoquer des redémarrages sur un
-bot avec beaucoup de fonctionnalités actives).
+Si ça arrive régulièrement (ex. environ toutes les heures) alors que WhatsApp reste bien connecté, c'est presque toujours une consommation mémoire/CPU qui grimpe jusqu'à ce que le panel tue le process. Vérifie en priorité le quota de RAM alloué (beaucoup de plans gratuits tournent autour de 256-512 Mo, ce qui peut être limite pour un bot avec beaucoup de fonctionnalités actives).
+</details>
 
-### "Après un redémarrage, le bot répond à une vieille commande"
+<details>
+<summary><strong>Après un redémarrage, le bot répond à une vieille commande</strong></summary>
 
-WhatsApp peut livrer d'un coup, juste après une reconnexion, un paquet de
-messages restés en attente pendant que le bot était hors ligne — parfois
-avec un horodatage qui ne reflète pas fidèlement leur heure d'envoi
-d'origine. Le bot ignore désormais systématiquement tout message reçu dans
-les toutes premières secondes suivant chaque connexion/reconnexion, en plus
-du filtre par horodatage déjà existant, pour ne plus jamais rejouer une
-commande tapée avant le redémarrage.
+WhatsApp peut livrer d'un coup, juste après une reconnexion, des messages restés en attente pendant que le bot était hors ligne. Le bot ignore désormais systématiquement les messages reçus dans les toutes premières secondes suivant chaque connexion, en plus du filtre par horodatage, pour ne jamais rejouer une commande tapée avant le redémarrage.
+</details>
+
+<details>
+<summary><strong>YouTube bloque le téléchargement ("Sign in to confirm you're not a bot")</strong></summary>
+
+Fournis des cookies d'un compte YouTube connecté dans `cookies/youtube.txt` (format Netscape — voir `cookies/README.md`). Le bot les utilise automatiquement dès qu'ils sont présents.
+</details>
+
+## ❓ Questions fréquentes
+
+**Le bot peut-il tourner sur plusieurs numéros en même temps ?**
+Non, une instance = un numéro WhatsApp lié via `session/`.
+
+**Puis-je changer le préfixe `.` ?**
+Oui, via `PREFIX` et `PREFIXES` dans `config.js`.
+
+**Comment mettre à jour le bot ?**
+Via `.update` (Git ou ZIP selon comment il a été installé), ou manuellement en remplaçant les fichiers sauf `config.js` et `session/`.
+
+## ⚠️ Avertissement
+
+Ce bot utilise **Baileys**, une librairie non-officielle qui reproduit le protocole WhatsApp Web. Son usage n'est pas garanti ni approuvé par WhatsApp/Meta et comporte un risque, même faible, de limitation ou de bannissement du numéro utilisé. Utilise de préférence un numéro secondaire, dédié au bot, et reste raisonnable sur le volume et la fréquence des actions automatisées (envois en masse, ajouts de membres, etc.).
+
+## 📄 Licence
+
+Distribué sous licence [MIT](LICENSE). Utilisation libre, modification et redistribution autorisées, à condition de conserver le crédit original.
+
+---
+
+<div align="center">
+
+Développé avec ❤️ par **ARIEL**
+Un bug, une idée ? Ouvre une [issue](https://github.com/ARIEL-MD/ARIEL-BOT-MD/issues).
+
+</div>
