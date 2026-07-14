@@ -29,7 +29,6 @@ Connexion par code d'appairage · Code 100% lisible · Aucun SESSION_ID externe 
 - [Démarrage](#%EF%B8%8F-démarrage)
 - [Commandes disponibles](#-commandes-disponibles)
 - [Déploiement](#%EF%B8%8F-déploiement)
-- [Dépannage](#%EF%B8%8F-dépannage)
 - [Questions fréquentes](#-questions-fréquentes)
 - [Avertissement](#%EF%B8%8F-avertissement)
 - [Licence](#-licence)
@@ -261,26 +260,6 @@ Le bot est conçu pour tourner de façon identique sur OptikLink, Katabump, un p
 | Ping HTTP (Render, Railway, Replit...) | Petit serveur intégré qui répond `OK` sur le port fourni par `PORT` (3000 par défaut) |
 | Console non interactive | Le bot saute la saisie manuelle du numéro au lieu de planter |
 | `yt-dlp` / `ffmpeg` | Téléchargés/vérifiés automatiquement au démarrage, même sans `postinstall` |
-
-## 🛠️ Dépannage
-
-<details>
-<summary><strong>Le bot redémarre tout seul très souvent</strong></summary>
-
-Si ça arrive régulièrement (ex. environ toutes les heures) alors que WhatsApp reste bien connecté, c'est presque toujours une consommation mémoire/CPU qui grimpe jusqu'à ce que le panel tue le process. Vérifie en priorité le quota de RAM alloué (beaucoup de plans gratuits tournent autour de 256-512 Mo, ce qui peut être limite pour un bot avec beaucoup de fonctionnalités actives).
-</details>
-
-<details>
-<summary><strong>Après un redémarrage, le bot répond à une vieille commande</strong></summary>
-
-WhatsApp peut livrer d'un coup, juste après une reconnexion, des messages restés en attente pendant que le bot était hors ligne. Le bot ignore désormais systématiquement les messages reçus dans les toutes premières secondes suivant chaque connexion, en plus du filtre par horodatage, pour ne jamais rejouer une commande tapée avant le redémarrage.
-</details>
-
-<details>
-<summary><strong>YouTube bloque le téléchargement ("Sign in to confirm you're not a bot")</strong></summary>
-
-Fournis des cookies d'un compte YouTube connecté dans `cookies/youtube.txt` (format Netscape — voir `cookies/README.md`). Le bot les utilise automatiquement dès qu'ils sont présents.
-</details>
 
 ## ❓ Questions fréquentes
 
