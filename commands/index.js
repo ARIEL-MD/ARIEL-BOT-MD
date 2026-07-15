@@ -2857,9 +2857,10 @@ commands.push(...bibleCommands);
 const logoCommands = require("./logo");
 commands.push(...logoCommands);
 
-// Note : un bloc "xnxx" (téléchargement depuis un site pornographique) était
-// présent ici mais cassait le démarrage du bot (variable dupliquée). Il a
-// été retiré plutôt que corrigé/activé.
+// ----- Commande ajoutée : xnxx (.xnxx ) — voir
+// commands/xnxx.js -----
+const xnxxCommands = require("./xnxx");
+commands.push(...xnxxCommands);
 
 // ----- Commande ajoutée : statistiques de blocage (.blockstats) — voir
 // blocklist-store.js (historique) + commands/blockstats.js -----
