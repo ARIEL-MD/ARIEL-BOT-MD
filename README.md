@@ -50,11 +50,11 @@ Le projet est pensé pour être :
 |---|---|
 | 📥 **Téléchargements** | YouTube, TikTok, Facebook, Instagram, Spotify, packs de stickers Telegram |
 | 🎨 **Images & Stickers** | Création de stickers, amélioration de photos, texte stylisé, fonds d'écran |
-| 🤖 **IA** | Chat avec Llama 3.3 70B (Groq), génération d'images (Pollinations) |
+| 🤖 **IA** | Chat avec Llama 3.3 70B (Groq), chatbot DM automatique, génération d'images (Pollinations) |
 | 🌍 **Traduction** | Traduction multi-API avec repli automatique en cascade |
 | 👥 **Modération de groupe** | Kick/promote/demote, anti-lien, anti-fake, tagall, bienvenue/au revoir personnalisés |
 | 👑 **Outils propriétaire** | Anti-suppression, anti-vue-unique, mode absent, réponse auto, visionneur de statuts, mise à jour à distance |
-| 🧰 **Utilitaires** | QR code, raccourcisseur de lien, convertisseur de devises, calculatrice, base64 |
+| 🧰 **Utilitaires** | QR code, raccourcisseur de lien, convertisseur de devises, calculatrice, base64, compression média, texte→vocal, transcription audio |
 | 🎉 **Fun** | Citations, boule magique, memes |
 
 ➡️ Voir la liste complète et détaillée dans [Commandes disponibles](#-commandes-disponibles).
@@ -125,6 +125,7 @@ Au premier lancement (ou si la session est perdue) :
 | `.afk [message]` | Active le mode absent (réponse auto en DM) — propriétaire |
 | `.unafk` | Désactive le mode absent — propriétaire |
 | `.autoreply on <message>` / `off` | Réponse automatique persistante en DM — propriétaire |
+| `.chatbot on\|off` | L'IA répond à ta place à qui t'écrit en DM, message par message — propriétaire |
 
 ### 👑 Owner (réservées au propriétaire)
 | Commande | Description |
@@ -145,6 +146,7 @@ Au premier lancement (ou si la session est perdue) :
 | `.scstatus` | Programme l'envoi d'une story |
 | `.update` | Vérifie et applique les mises à jour du bot |
 | `.restart` | Redémarre le bot |
+| `.blockstats` | Historique de qui a été bloqué/débloqué au fil du temps |
 
 <details>
 <summary><strong>📡 Visionneur de statuts automatique (<code>.autostatus</code>)</strong></summary>
@@ -168,6 +170,7 @@ Persistance propre (`data/autostatus.json`) : survit à un redémarrage sans con
 |---|---|
 | `.gpt <question>` | Pose une question à l'IA (Llama 3.3 70B via Groq) |
 | `.dall <description>` | Génère une image à partir d'une description (Pollinations AI) |
+| `.transcribe` | Transcrit un audio/note vocale en texte (répondre à un audio) |
 
 ### 📥 Téléchargements
 | Commande | Description |
@@ -189,6 +192,7 @@ Persistance propre (`data/autostatus.json`) : survit à un redémarrage sans con
 | `.text <style> <texte>` | Génère un texte stylisé (metallic, ice, neon, fire, matrix...) |
 | `.hacker <texte>` | Génère un avatar "hacker" stylisé |
 | `.wall <recherche>` | Cherche des fonds d'écran (alias `.wallpaper`) |
+| `.<style> <texte>` | Génère un logo/texte 3D stylisé (17 styles : `deepsea`, `horror`, `pink`, `candy`, `christmas`, `luxury`, `sky`, `steel`, `glue`, `fabric`, `transformer`, `toxic`, `ancient`, `thunder`, `graphy`, `neon`, `frozen`) — ex : `.neon Ariel` |
 
 ### 🌍 Traduction
 | Commande | Description |
@@ -202,6 +206,7 @@ Persistance propre (`data/autostatus.json`) : survit à un redémarrage sans con
 | `.meteo <ville>` | Météo actuelle d'une ville |
 | `.lyrics <artiste> - <titre>` | Paroles d'une chanson |
 | `.currency <montant> <de> <vers>` | Convertisseur de devises |
+| `.wiki <sujet>` | Résumé Wikipédia d'un sujet |
 
 ### 🧰 Utilitaires
 | Commande | Description |
@@ -210,6 +215,8 @@ Persistance propre (`data/autostatus.json`) : survit à un redémarrage sans con
 | `.qrcode <texte/lien>` | Génère un QR code |
 | `.shorturl <lien>` | Raccourcit un lien |
 | `.base64 encode\|decode <texte>` | Encode/décode en base64 |
+| `.tovoice [code langue] <texte>` | Convertit un texte en note vocale (ex : `.tovoice en Hello everyone`) |
+| `.compress [qualité 1-100]` | Compresse une image/vidéo trop lourde (répondre au média) |
 | `.poll Question \| Option1 \| Option2...` | Crée un sondage WhatsApp |
 | `.clear` | Efface les messages connus pour tout le monde — propriétaire |
 | `.clearforme` | Efface la discussion connue, uniquement de ton côté — propriétaire |

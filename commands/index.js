@@ -78,6 +78,8 @@ const {
   isAutoReplyActive,
   setAutoReply,
   getAutoReplyMessage,
+  isChatbotActive,
+  setChatbot,
   getSetting,
   setSetting,
   TOGGLES,
@@ -524,10 +526,13 @@ async function addWatermark(imageBuffer, label) {
 }
 
 
-async function askGPT(prompt) {
+async function askGPT(prompt, systemPrompt) {
   if (!GROQ_API_KEY || GROQ_API_KEY === "COLLE_TA_CLE_GROQ_ICI") {
     throw new Error("NO_API_KEY");
   }
+  const messages = systemPrompt
+    ? [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
+    : [{ role: "user", content: prompt }];
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -536,8 +541,11 @@ async function askGPT(prompt) {
     },
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile", // modèle gratuit chez Groq
-      messages: [{ role: "user", content: prompt }],
+      messages,
       max_tokens: 800,
+      // Température basse : pour une même question, l'IA reste cohérente et
+      // répond à peu près pareil à chaque fois, au lieu de varier.
+      temperature: 0.3,
     }),
   });
   if (!res.ok) {
@@ -2551,6 +2559,48 @@ const commands = [
     },
   },
   {
+    name: "chatbot",
+    desc: "L'IA répond à ta place à qui t'écrit en DM, message par message : .chatbot on / .chatbot off - propriétaire",
+    category: "Général",
+    run: async (sock, msg, { from, senderNumber, args }) => {
+      if (!isOwner(senderNumber)) {
+        return sock.sendMessage(from, { text: "❌ Réservé au propriétaire du bot." });
+      }
+      const sub = (args[0] || "").toLowerCase();
+      if (sub === "off") {
+        setChatbot(false);
+        return sock.sendMessage(from, { text: "🔕 Chatbot IA désactivé." });
+      }
+      if (sub === "on") {
+        if (!GROQ_API_KEY || GROQ_API_KEY === "COLLE_TA_CLE_GROQ_ICI") {
+          return sock.sendMessage(from, {
+            text:
+              "❌ Clé API Groq non configurée, le chatbot ne peut pas répondre sans elle.\n\n" +
+              "1️⃣ Va sur https://console.groq.com/keys et crée une clé gratuite\n" +
+              "2️⃣ Envoie-moi : .grok_clé_api=TA_CLE_ICI\n" +
+              "3️⃣ Redémarre le bot, puis retape .chatbot on",
+          });
+        }
+        setChatbot(true);
+        return sock.sendMessage(from, {
+          text:
+            "🤖 Chatbot IA activé.\n\n" +
+            "Chaque message reçu en privé aura une réponse générée par l'IA, comme si tu répondais toi-même — peu importe ce qu'on t'écrit. Ça continue de fonctionner même si ton téléphone est éteint, tant que le bot tourne sur ton panel.\n\n" +
+            "Astuce : active aussi .online on pour paraître en ligne en permanence pendant que le chatbot répond à ta place.\n\n" +
+            ".chatbot off pour désactiver.",
+        });
+      }
+      const state = isChatbotActive() ? "activé ✅" : "désactivé ❌";
+      return sock.sendMessage(from, {
+        text:
+          `🤖 Chatbot IA : ${state}\n\n` +
+          "Utilisation :\n" +
+          ".chatbot on\n" +
+          ".chatbot off",
+      });
+    },
+  },
+  {
     name: "lyrics",
     desc: "Paroles d'une chanson : .lyrics <artiste> - <titre> (ou juste le titre)",
     category: "Infos & Recherche",
@@ -2800,11 +2850,38 @@ commands.push(...wallpaperCommands);
 const bibleCommands = require("./bible");
 commands.push(...bibleCommands);
 
-// ----- Commande ajoutée : xnxx (.xnxx) — voir
-// commands/xnxx.js -----
-const bibleCommands = require("./xnxx");
-commands.push(...xnxxCommands);
+// ----- Commandes ajoutées : logos/effets de texte 3D (.deepsea, .horror,
+// .pink, .candy, .christmas, .luxury, .sky, .steel, .glue, .fabric,
+// .transformer, .toxic, .ancient, .thunder, .graphy, .neon, .frozen) — voir
+// commands/logo.js -----
+const logoCommands = require("./logo");
+commands.push(...logoCommands);
+
+// Note : un bloc "xnxx" (téléchargement depuis un site pornographique) était
+// présent ici mais cassait le démarrage du bot (variable dupliquée). Il a
+// été retiré plutôt que corrigé/activé.
+
+// ----- Commande ajoutée : statistiques de blocage (.blockstats) — voir
+// blocklist-store.js (historique) + commands/blockstats.js -----
+const blockstatsCommands = require("./blockstats");
+commands.push(...blockstatsCommands);
+
+// ----- Commande ajoutée : compression média (.compress) — voir
+// commands/compress.js -----
+const compressCommands = require("./compress");
+commands.push(...compressCommands);
+
+// ----- Commande ajoutée : texte-vers-audio (.tovoice) — voir
+// commands/tovoice.js -----
+const tovoiceCommands = require("./tovoice");
+commands.push(...tovoiceCommands);
+
+// ----- Commande ajoutée : résumé Wikipédia (.wiki) — voir
+// commands/wiki.js -----
+const wikiCommands = require("./wiki");
+commands.push(...wikiCommands);
 
 module.exports = commands;
 module.exports.getMenuImageBuffer = getMenuImageBuffer;
 module.exports.initScheduledStatuses = profileStatusCommands.initScheduledStatuses;
+module.exports.askGPT = askGPT;

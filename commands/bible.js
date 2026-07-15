@@ -8,6 +8,109 @@ const axios = require("axios");
 
 const API_BASE = "https://query.getbible.net/v2/ls1910/";
 
+// L'API getbible accepte en théorie les noms de livres propres à chaque
+// traduction (donc les noms français pour ls1910), mais en pratique c'est
+// peu fiable : beaucoup de requêtes avec "Jean", "Genèse", etc. renvoient
+// "aucun verset trouvé" alors que la référence est correcte. Par contre,
+// les noms anglais (KJV) fonctionnent de façon fiable avec TOUTES les
+// traductions, y compris ls1910 (documenté par getbible.net lui-même). On
+// convertit donc silencieusement le nom du livre français vers son
+// équivalent anglais avant d'interroger l'API.
+const FRENCH_TO_ENGLISH_BOOKS = {
+  "genese": "Genesis",
+  "exode": "Exodus",
+  "levitique": "Leviticus",
+  "nombres": "Numbers",
+  "deuteronome": "Deuteronomy",
+  "josue": "Joshua",
+  "juges": "Judges",
+  "ruth": "Ruth",
+  "1 samuel": "1 Samuel",
+  "2 samuel": "2 Samuel",
+  "1 rois": "1 Kings",
+  "2 rois": "2 Kings",
+  "1 chroniques": "1 Chronicles",
+  "2 chroniques": "2 Chronicles",
+  "esdras": "Ezra",
+  "nehemie": "Nehemiah",
+  "esther": "Esther",
+  "job": "Job",
+  "psaumes": "Psalms",
+  "psaume": "Psalms",
+  "proverbes": "Proverbs",
+  "ecclesiaste": "Ecclesiastes",
+  "cantique des cantiques": "Song of Solomon",
+  "esaie": "Isaiah",
+  "jeremie": "Jeremiah",
+  "lamentations": "Lamentations",
+  "ezechiel": "Ezekiel",
+  "daniel": "Daniel",
+  "osee": "Hosea",
+  "joel": "Joel",
+  "amos": "Amos",
+  "abdias": "Obadiah",
+  "jonas": "Jonah",
+  "michee": "Micah",
+  "nahum": "Nahum",
+  "habacuc": "Habakkuk",
+  "sophonie": "Zephaniah",
+  "aggee": "Haggai",
+  "zacharie": "Zechariah",
+  "malachie": "Malachi",
+  "matthieu": "Matthew",
+  "marc": "Mark",
+  "luc": "Luke",
+  "jean": "John",
+  "actes": "Acts",
+  "romains": "Romans",
+  "1 corinthiens": "1 Corinthians",
+  "2 corinthiens": "2 Corinthians",
+  "galates": "Galatians",
+  "ephesiens": "Ephesians",
+  "philippiens": "Philippians",
+  "colossiens": "Colossians",
+  "1 thessaloniciens": "1 Thessalonians",
+  "2 thessaloniciens": "2 Thessalonians",
+  "1 timothee": "1 Timothy",
+  "2 timothee": "2 Timothy",
+  "tite": "Titus",
+  "philemon": "Philemon",
+  "hebreux": "Hebrews",
+  "jacques": "James",
+  "1 pierre": "1 Peter",
+  "2 pierre": "2 Peter",
+  "1 jean": "1 John",
+  "2 jean": "2 John",
+  "3 jean": "3 John",
+  "jude": "Jude",
+  "apocalypse": "Revelation",
+};
+
+// Enlève les accents et met en minuscule, pour comparer sans se soucier de
+// la casse ni des accents (ex: "Ésaïe" et "esaie" doivent matcher).
+function normalizeBookName(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+// Sépare une référence du type "Jean 3:16" ou "1 Corinthiens 13:4-7" en
+// nom de livre + chapitre/verset, traduit le nom du livre en anglais s'il
+// est reconnu, puis reconstruit la référence. Si le format n'est pas
+// reconnu, on renvoie la référence telle quelle (sans planter).
+function translateReference(reference) {
+  const match = reference.match(/^(.+?)\s+(\d+(?::\d+(?:-\d+)?)?)$/);
+  if (!match) return reference;
+
+  const [, bookPart, versePart] = match;
+  const normalized = normalizeBookName(bookPart);
+  const english = FRENCH_TO_ENGLISH_BOOKS[normalized];
+
+  return english ? `${english} ${versePart}` : reference;
+}
+
 const commands = [
   {
     name: "bible",
@@ -28,7 +131,8 @@ const commands = [
       }
 
       try {
-        const url = `${API_BASE}${encodeURIComponent(reference)}`;
+        const queryReference = translateReference(reference);
+        const url = `${API_BASE}${encodeURIComponent(queryReference)}`;
         const { data } = await axios.get(url, { timeout: 15000 });
 
         const groups = data && data.result ? Object.values(data.result) : [];

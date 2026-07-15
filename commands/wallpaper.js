@@ -27,10 +27,12 @@ const commands = [
       }
 
       try {
-        const apiUrl = `https://weeb-api.vercel.app/wallpaper?query=${encodeURIComponent(text)}`;
-        const { data: imageUrls } = await axios.get(apiUrl, { timeout: 15000 });
+        const apiUrl = `https://wallhaven.cc/api/v1/search?q=${encodeURIComponent(text)}`;
+        const { data } = await axios.get(apiUrl, { timeout: 15000 });
+        const results = Array.isArray(data && data.data) ? data.data : [];
+        const imageUrls = results.map((item) => item.path).filter(Boolean);
 
-        if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
+        if (!imageUrls.length) {
           return sock.sendMessage(from, { text: `❌ Aucun fond d'écran trouvé pour : ${text}` });
         }
 

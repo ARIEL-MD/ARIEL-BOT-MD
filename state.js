@@ -139,6 +139,20 @@ function getAutoReplyMessage() {
   return settings.has("AUTOREPLY_MESSAGE") ? settings.get("AUTOREPLY_MESSAGE") : "";
 }
 
+// --- Chatbot IA (.chatbot) : comme .autoreply, l'état est PERSISTÉ sur
+// disque et reste actif tant que .chatbot off n'est pas exécuté (même après
+// un redémarrage du bot, et même si TA connexion/téléphone est éteint,
+// puisque c'est le process du bot lui-même — hébergé séparément — qui
+// répond). Contrairement à .autoreply (message fixe identique à tout le
+// monde), chaque réponse est générée par l'IA à partir du message reçu.
+function isChatbotActive() {
+  return settings.has("CHATBOT_ACTIVE") ? settings.get("CHATBOT_ACTIVE") : false;
+}
+function setChatbot(active) {
+  settings.set("CHATBOT_ACTIVE", active);
+  persistSettings();
+}
+
 // ===================== ANTI-RÉEXÉCUTION DES COMMANDES (persistant) =====================
 // Avant : la liste des IDs de messages déjà traités n'existait qu'en mémoire
 // (perdue à chaque redémarrage du process). Résultat : si l'hébergeur
@@ -233,6 +247,8 @@ module.exports = {
   isAutoReplyActive,
   setAutoReply,
   getAutoReplyMessage,
+  isChatbotActive,
+  setChatbot,
   getSetting,
   setSetting,
   TOGGLES,

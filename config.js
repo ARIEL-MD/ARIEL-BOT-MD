@@ -11,8 +11,8 @@ module.exports = {
   // Avec ça, .menu ET !menu fonctionnent tous les deux.
   PREFIXES: [".", "!"],
 
-  // Nom affiché du bot
-  BOT_NAME: "ARIEL-MD",
+  // Nom affiché du bot.
+  BOT_NAME: "ARIEL-BOT 🤖",
   BOT_VERSION: "1.0",
 
   // Image affichée avec .menu et .alive. Mets un lien direct vers une image
@@ -20,23 +20,22 @@ module.exports = {
   // lien direct "https://...jpg" ici). Laisse "" pour un menu texte seul.
   MENU_IMAGE_URL: "https://i.ibb.co/vvTf52cf/ARIEL-MD.jpg",
 
-  // Numéro du propriétaire (avec indicatif pays, sans + ni espaces).
-  // Change-le librement pour héberger le bot avec TON numéro.
+  // Numéro et nom du propriétaire.
   OWNER_NUMBER: "2250788523990",
-
-  // ⚠️ "ARIEL MD" doit toujours rester dans ce nom, sinon le bot refuse de
-  // démarrer (protection anti-suppression du crédit). Tu peux par contre
-  // ajouter ton propre nom à côté, par exemple : "ARIEL MD 🤖 | TonNom"
-  OWNER_NAME: "ARIEL MD 🤖",
+  OWNER_NAME: "ARIEL ",
 
   // Numéro WhatsApp qui va héberger le bot (pour le code d'appairage).
+  // LIBRE — c'est le seul numéro que chaque personne qui déploie le bot doit
+  // changer : elle met SON numéro ici, obtient son code d'appairage, et a
+  // ensuite accès à TOUTES les commandes (y compris propriétaire), car le
+  // bot reconnaît automatiquement le compte réellement connecté.
   // Laisse vide ("") pour qu'il soit demandé dans la console/le panneau
   // à chaque démarrage tant qu'aucune session n'existe.
   PHONE_NUMBER: "",
 
   // Clé API Groq (gratuite), nécessaire pour la commande .gpt
   // Récupère-la sur https://console.groq.com/keys
-  GROQ_API_KEY: "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",
+  GROQ_API_KEY: "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",
 
   // Token de bot Telegram, utilisé par .tg (téléchargement de packs de
   // stickers Telegram). Change-le dans BotFather si tu veux le régénérer.
