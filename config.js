@@ -35,11 +35,11 @@ module.exports = {
 
   // Clé API Groq (gratuite), nécessaire pour la commande .gpt
   // Récupère-la sur https://console.groq.com/keys
-  GROQ_API_KEY: "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",
+  GROQ_API_KEY: "",
 
   // Token de bot Telegram, utilisé par .tg (téléchargement de packs de
-  // stickers Telegram). Change-le dans BotFather si tu veux le régénérer.
-  TELEGRAM_BOT_TOKEN: "8029372890:AAHMvBULlSmmn2Ou8CDvbfQmmnvw4lshLgY",
+  // stickers Telegram). Crée le tien via @BotFather.
+  TELEGRAM_BOT_TOKEN: "",
 
   // Lien "Download ZIP" du dépôt (ex: https://github.com/toi/ton-repo/archive/refs/heads/main.zip)
   // Utilisé par .update UNIQUEMENT si le bot n'a pas été installé via Git.
